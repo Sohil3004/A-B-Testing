@@ -15,3 +15,5 @@ if str(BACKEND_DIR) not in sys.path:
 from app.main import app, ensure_bootstrapped  # noqa: E402
 
 ensure_bootstrapped()
+
+__all__ = ["app"]

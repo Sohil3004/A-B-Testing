@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import tempfile
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -9,7 +11,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 def _default_db_url() -> str:
     if os.getenv("VERCEL"):
-        return "sqlite:////tmp/experimentiq.db"
+        tmp_db = (Path(tempfile.gettempdir()) / "experimentiq.db").as_posix()
+        return f"sqlite:///{tmp_db}"
     return "sqlite:///./experimentiq.db"
 
 
