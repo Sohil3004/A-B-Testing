@@ -155,17 +155,29 @@ export interface ExperimentCreateInput {
   }[];
 }
 
-const DEFAULT_API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const DEFAULT_API_KEY =
   process.env.NEXT_PUBLIC_API_KEY || "dev-secret-key";
 
+function defaultBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host !== "localhost" && host !== "127.0.0.1") {
+      return window.location.origin;
+    }
+  }
+  return "http://localhost:8000";
+}
+
 export function getApiConfig() {
+  const fallbackUrl = defaultBaseUrl();
   if (typeof window === "undefined") {
-    return { baseUrl: DEFAULT_API_URL, apiKey: DEFAULT_API_KEY };
+    return { baseUrl: fallbackUrl, apiKey: DEFAULT_API_KEY };
   }
   return {
-    baseUrl: localStorage.getItem("experimentiq_api_url") || DEFAULT_API_URL,
+    baseUrl: localStorage.getItem("experimentiq_api_url") || fallbackUrl,
     apiKey: localStorage.getItem("experimentiq_api_key") || DEFAULT_API_KEY,
   };
 }

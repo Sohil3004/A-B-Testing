@@ -1,26 +1,33 @@
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _default_db_url() -> str:
+    if os.getenv("VERCEL"):
+        return "sqlite:////tmp/experimentiq.db"
+    return "sqlite:///./experimentiq.db"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "ExperimentIQ"
-    # Postgres in Docker/production; SQLite fallback keeps local dev zero-setup.
-    database_url: str = "sqlite:///./experimentiq.db"
+    # Postgres in Docker/production; SQLite fallback (/tmp on Vercel serverless) keeps setup zero-config.
+    database_url: str = _default_db_url()
     api_key: str = "dev-secret-key"
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "*" if os.getenv("VERCEL") else "http://localhost:3000"
     # Below this many users per arm we refuse to call a winner, whatever the p-value.
     min_users_per_variant: int = 100
 
     @field_validator("database_url")
     @classmethod
     def _normalise_db_url(cls, v: str) -> str:
-        # Heroku/Render/Neon hand out postgres:// URLs; SQLAlchemy + psycopg3 wants this form.
+        # Heroku/Render/Neon/Supabase hand out postgres:// URLs; SQLAlchemy + psycopg3 wants this form.
         if v.startswith("postgres://"):
             v = "postgresql+psycopg://" + v[len("postgres://"):]
         elif v.startswith("postgresql://"):
