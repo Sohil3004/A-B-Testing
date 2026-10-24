@@ -167,10 +167,18 @@ export function getApiConfig() {
       "http://localhost:8000";
     return { baseUrl: serverBase, apiKey: DEFAULT_API_KEY };
   }
-  // Client-side: default to same-origin (routed via top-level /api/(.*) rewrite)
+  // Client-side: default to same-origin (routed via /api/v1)
   const fallbackUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  const storedUrl = localStorage.getItem("experimentiq_api_url") ?? fallbackUrl;
+  const isRemoteHost =
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1";
+  const effectiveUrl =
+    isRemoteHost && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(storedUrl)
+      ? ""
+      : storedUrl;
   return {
-    baseUrl: localStorage.getItem("experimentiq_api_url") ?? fallbackUrl,
+    baseUrl: effectiveUrl,
     apiKey: localStorage.getItem("experimentiq_api_key") || DEFAULT_API_KEY,
   };
 }
