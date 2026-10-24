@@ -158,33 +158,30 @@ export interface ExperimentCreateInput {
 const DEFAULT_API_KEY =
   process.env.NEXT_PUBLIC_API_KEY || "dev-secret-key";
 
-function defaultBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host !== "localhost" && host !== "127.0.0.1") {
-      return window.location.origin;
-    }
-  }
-  return "http://localhost:8000";
-}
-
 export function getApiConfig() {
-  const fallbackUrl = defaultBaseUrl();
   if (typeof window === "undefined") {
-    return { baseUrl: fallbackUrl, apiKey: DEFAULT_API_KEY };
+    // Server-side: use the Vercel Service Binding (BACKEND_URL) injected at runtime
+    const serverBase =
+      process.env.BACKEND_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      "http://localhost:8000";
+    return { baseUrl: serverBase, apiKey: DEFAULT_API_KEY };
   }
+  // Client-side: default to same-origin (routed via top-level /api/(.*) rewrite)
+  const fallbackUrl = process.env.NEXT_PUBLIC_API_URL || "";
   return {
-    baseUrl: localStorage.getItem("experimentiq_api_url") || fallbackUrl,
+    baseUrl: localStorage.getItem("experimentiq_api_url") ?? fallbackUrl,
     apiKey: localStorage.getItem("experimentiq_api_key") || DEFAULT_API_KEY,
   };
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const { baseUrl, apiKey } = getApiConfig();
-  const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/v1${path}`, {
+  const cleanBase = baseUrl.replace(/\/$/, "");
+  const url = cleanBase
+    ? new URL(`/api/v1${path}`, cleanBase).toString()
+    : `/api/v1${path}`;
+  const res = await fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",

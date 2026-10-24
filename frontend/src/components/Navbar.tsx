@@ -101,10 +101,12 @@ export function Navbar() {
             </p>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300">Backend URL</label>
+                <label className="block text-xs font-medium text-slate-300">
+                  Backend URL (leave blank for same-origin <code className="text-indigo-300">/api/v1</code>)
+                </label>
                 <input
-                  type="url"
-                  required
+                  type="text"
+                  placeholder="Same-origin (/api/v1)"
                   value={apiUrl}
                   onChange={(e) => setApiUrl(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:border-indigo-500 focus:outline-none"

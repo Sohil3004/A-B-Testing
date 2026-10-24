@@ -61,3 +61,7 @@ for r in (experiments.router, tracking.router, stats.router):
 @app.get("/health", tags=["meta"])
 def health() -> dict:
     return {"status": "ok"}
+
+
+if os.getenv("VERCEL"):
+    ensure_bootstrapped()
