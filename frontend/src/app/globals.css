@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-indigo-200;
+}
+
+/* Modern post-interaction form validation per modern-web-guidance */
+input:user-invalid,
+textarea:user-invalid,
+select:user-invalid {
+  @apply border-rose-500/80 ring-1 ring-rose-500/40;
+}
+
+input:user-valid:not(:placeholder-shown) {
+  @apply border-slate-700;
+}
