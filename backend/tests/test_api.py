@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 import pytest
@@ -149,7 +149,7 @@ def _seed(db, *, n, p_control, p_treatment, metric_type="conversion", seed=0, md
     db.add(exp)
     db.flush()
     c, t = exp.variants
-    start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    start = datetime(2026, 1, 1, tzinfo=UTC)
     for i in range(n):
         v = c if i % 2 == 0 else t
         ts = start + timedelta(minutes=i)

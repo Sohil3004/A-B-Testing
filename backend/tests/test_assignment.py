@@ -36,11 +36,12 @@ def test_split_matches_weights(weights):
     variants = [V("control", weights[0]), V("treatment", weights[1])]
     n = 20_000
     counts = {"control": 0, "treatment": 0}
+    salt = f"salt-{weights[0]}-{weights[1]}"
     for i in range(n):
-        counts[choose_variant("exp-salt", f"user-{i}", variants).key] += 1
+        counts[choose_variant(salt, f"user-{i}", variants).key] += 1
     obs = [counts["control"], counts["treatment"]]
     p = sps.chisquare(obs, [n * w for w in weights]).pvalue
-    assert p > 0.001, f"split {obs} inconsistent with weights {weights}"
+    assert p > 0.01, f"split {obs} inconsistent with weights {weights}"
 
 
 def test_traffic_allocation():

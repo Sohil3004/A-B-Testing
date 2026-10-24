@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
-from typing import Iterable
 
 from .distributions import t_ppf, t_sf
 from .proportions import Interval
@@ -21,7 +21,7 @@ class SampleSummary:
         return math.sqrt(self.variance)
 
     @classmethod
-    def from_values(cls, values: Iterable[float]) -> "SampleSummary":
+    def from_values(cls, values: Iterable[float]) -> SampleSummary:
         """Welford's online algorithm: numerically stable single pass."""
         n, mean, m2 = 0, 0.0, 0.0
         for v in values:

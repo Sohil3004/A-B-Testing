@@ -196,7 +196,7 @@ def test_sample_size_proportions_monte_carlo():
     n, sims = r.per_variant, 3000
     xc = rng.binomial(n, 0.10, sims)
     xt = rng.binomial(n, 0.115, sims)
-    hit = np.mean([stats.two_proportion_ztest(int(a), n, int(b), n).significant for a, b in zip(xc, xt)])
+    hit = np.mean([stats.two_proportion_ztest(int(a), n, int(b), n).significant for a, b in zip(xc, xt, strict=False)])
     assert 0.77 <= hit <= 0.83
 
 

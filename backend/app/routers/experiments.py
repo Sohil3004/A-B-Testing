@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func, select
@@ -61,7 +61,9 @@ def create_experiment(payload: ExperimentCreate, db: Session = Depends(get_db)):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status.HTTP_409_CONFLICT, f"Experiment key '{payload.key}' already exists")
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"Experiment key '{payload.key}' already exists"
+        ) from None
     db.refresh(exp)
     return experiment_out(exp)
 
@@ -124,7 +126,7 @@ def _transition(experiment_id: int, action: str, db: Session) -> dict:
     current = ExperimentStatus(exp.status)
     if current not in allowed_from:
         raise HTTPException(status.HTTP_409_CONFLICT, f"Cannot {action} an experiment that is {current.value}")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     exp.status = to_state.value
     if action == "start" and exp.started_at is None:
         exp.started_at = now

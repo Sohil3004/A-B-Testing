@@ -21,7 +21,7 @@ import math
 import random
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete, insert, select
 
@@ -154,7 +154,7 @@ def _user_events(rng: random.Random, sc: Scenario, arm: Arm, uid: str, t0: datet
 def run_direct(scale: float, reset: bool, seed: int) -> None:
     init_db()
     rng = random.Random(seed)
-    now = datetime.now(timezone.utc).replace(microsecond=0)
+    now = datetime.now(UTC).replace(microsecond=0)
     with SessionLocal() as db:
         for sc in SCENARIOS:
             existing = db.scalar(select(Experiment).where(Experiment.key == sc.key))
@@ -242,7 +242,7 @@ def run_api(base_url: str, api_key: str, scale: float, seed: int) -> None:
                 continue
             assigned += 1
             arm = sc.control if a["variant"] == "control" else sc.treatment
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             for e in _user_events(rng, sc, arm, uid, now, now + timedelta(days=1)):
                 batch.append({"experiment_key": exp["key"], "user_id": uid, "event_type": e["event_type"],
                               "value": e["value"]})

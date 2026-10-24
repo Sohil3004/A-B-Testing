@@ -48,7 +48,7 @@ class ExperimentCreate(BaseModel):
     variants: list[VariantIn] = Field(default_factory=_default_variants)
 
     @model_validator(mode="after")
-    def _check(self) -> "ExperimentCreate":
+    def _check(self) -> ExperimentCreate:
         if self.key is None:
             self.key = slugify(self.name)
         self.variants = validate_variants(self.variants)
@@ -173,7 +173,7 @@ class SampleSizeRequest(BaseModel):
     daily_traffic: int | None = Field(default=None, gt=0, description="Users/day entering the test")
 
     @model_validator(mode="after")
-    def _check(self) -> "SampleSizeRequest":
+    def _check(self) -> SampleSizeRequest:
         if self.metric_type == MetricType.conversion and not 0 < self.baseline < 1:
             raise ValueError("baseline conversion rate must be between 0 and 1")
         if self.metric_type == MetricType.continuous and self.std_dev is None:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -83,7 +83,7 @@ def _ingest(db: Session, events: list[EventIn]) -> EventIngestResult:
             assigned[(key, uid)] = vid
 
     accepted, errors = 0, []
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     for i, e in enumerate(events):
         exp = experiments[e.experiment_key]
         if exp is None:

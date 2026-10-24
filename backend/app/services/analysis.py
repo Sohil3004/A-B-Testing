@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,7 +25,7 @@ from ..schemas import ExperimentOut
 
 def _utc(dt: datetime) -> datetime:
     """SQLite drops tzinfo; treat naive timestamps as UTC."""
-    return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt.astimezone(timezone.utc)
+    return dt.replace(tzinfo=UTC) if dt.tzinfo is None else dt.astimezone(UTC)
 
 
 def _iv(interval) -> dict | None:
@@ -160,7 +160,9 @@ def analyze(db: Session, exp: Experiment, min_users_per_variant: int = 100) -> d
         elif not is_conversion and n_c > 1:
             s = summaries[control.id]
             if s.mean != 0 and s.std > 0:
-                required = stats.sample_size_means(abs(s.mean), s.std, exp.mde, "relative", alpha, exp.power).per_variant
+                required = stats.sample_size_means(
+                    abs(s.mean), s.std, exp.mde, "relative", alpha, exp.power
+                ).per_variant
     except ValueError:
         required = None
 
@@ -197,7 +199,7 @@ def analyze(db: Session, exp: Experiment, min_users_per_variant: int = 100) -> d
         "progress": progress,
         "timeseries": _timeseries(users, control.id, treatment.id, is_conversion, alpha),
         "warnings": warnings,
-        "computed_at": datetime.now(timezone.utc),
+        "computed_at": datetime.now(UTC),
     }
 
 

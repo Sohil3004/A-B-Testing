@@ -8,8 +8,8 @@ chi-square goodness-of-fit test of observed counts vs configured weights.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
-from typing import Sequence
 
 from .distributions import norm_sf
 
@@ -59,7 +59,7 @@ def srm_check(observed: Sequence[int], weights: Sequence[float]) -> SRMResult:
     expected = [total * w / wsum for w in weights]
     if total == 0:
         return SRMResult(0.0, 1.0, expected, list(observed), False)
-    chi2 = sum((o - e) ** 2 / e for o, e in zip(observed, expected) if e > 0)
+    chi2 = sum((o - e) ** 2 / e for o, e in zip(observed, expected, strict=False) if e > 0)
     p = chi2_sf(chi2, len(observed) - 1)
     return SRMResult(chi2, p, expected, list(observed), p < SRM_ALPHA)
 
